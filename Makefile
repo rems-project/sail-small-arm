@@ -1,45 +1,37 @@
-SAIL:=sail -Ofast_undefined
-SAILFLAGS=
+SAIL:=sail
+export SAIL_OPTS= --Ofast-undefined
+export SAIL_COQ_OPTS= --coq-record-update
+# The order of files in sail_files is important
+SOURCES=$(shell cat sail_files)
 
-default: armV8.v
+default: coq
 
-# the order of the files is important
-SOURCES=\
-  prelude.sail\
-  armV8.h.sail\
-  armV8_A64_sys_regs.sail\
-  armV8_A64_special_purpose_regs.sail\
-  armV8_A32_sys_regs.sail\
-  armV8_pstate.sail\
-  armV8_lib.h.sail\
-  armV8_common_lib.sail\
-  armV8_A64_lib.sail\
-  armV8.sail\
+.PHONY: coq
+coq:
+	dune build
 
+.PHONY: coq-snapshot
+coq-snapshot:
+	@# First build the file and then check that they match
+	-dune build @snapshot --auto-promote
+	@dune build @snapshot
 
 .PHONY: interactive
 interactive:
-	$(SAIL) $(SAILFLAGS) -i $(SOURCES)
+	$(SAIL) $(SAIL_OPTS) -i $(SOURCES)
 
 .PHONY: check
 check:
-	$(SAIL) $(SAILFLAGS) -i $(SOURCES)
+	$(SAIL) $(SAIL_OPTS) -i $(SOURCES)
 
-armV8.v armV8_types.v: $(SOURCES)
-	$(SAIL) $(SAILFLAGS) -coq -coq_lib armV8_extras -o armV8 $^
-
-armV8.vo armV8_types.vo armV8_extras.vo: armV8.v armV8_types.v armV8_extras.v
-	coqc armV8_types.v
-	coqc armV8_extras.v
-	coqc armV8.v
-
+.PHONY: clean
 clean:
-	rm -f armV8.v armV8_types.v
-	rm -f *.vo *.vos *.vok *.glob .*.aux
+	dune clean
+
 ######################################################################
 ETCDIR=etc
 
+.PHONY: apply_header
 apply_header:
 	headache -c $(ETCDIR)/headache_config -h $(ETCDIR)/header *.sail *.v
 
-.PHONY: apply_header

@@ -1,0 +1,28 @@
+(coq.theory
+ (name SailSmallArm)
+ (package coq-sail-small-arm)
+ (modules
+   armV8_extras
+   armV8_types
+   armV8
+ )
+ (theories stdpp stdpp.bitvector SailStdpp RecordUpdate)
+)
+
+(rule
+ (deps sail_files (:sail %{read-lines:sail_files}) (env_var SAIL_OPTS) (env_var SAIL_COQ_OPTS) (package sail))
+ (targets armV8.v armV8_types.v)
+ (action
+  (run sail %{env:SAIL_OPTS=--Ofast-undefined} -D SYSTEM_TINY_ARM
+       --coq --coq-lib armV8_extras %{env:SAIL_COQ_OPTS=--coq-record-update}
+       -o armV8 %{sail}))
+)
+
+(rule
+ (alias snapshot)
+ (mode promote)
+ (action
+  (concurrent
+   (diff snapshot/armV8_types.v armV8_types.v)
+   (diff snapshot/armV8.v armV8.v)
+)))
