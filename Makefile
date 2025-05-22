@@ -22,7 +22,7 @@ interactive:
 
 .PHONY: check
 check:
-	$(SAIL) $(SAIL_OPTS) -i $(SOURCES)
+	$(SAIL) $(SAIL_OPTS) --just-check $(SOURCES)
 
 .PHONY: clean
 clean:
