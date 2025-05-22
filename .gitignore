@@ -1,0 +1,13 @@
+*.vo
+*.vok
+*.vos
+*.vio
+*.glob
+*.v.d
+*.aux
+*.cache
+*Makefile.coq*
+_build
+_opam
+.envrc
+z3_problems
